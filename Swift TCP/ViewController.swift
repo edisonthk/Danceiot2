@@ -21,7 +21,7 @@ class ViewController: UIViewController, NSStreamDelegate {
 
     func printQueueLabel(function:String = __FUNCTION__){
         let label = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
-        println("\(function) @ \(String.fromCString(label))");
+        println("\(function) @ \(String.fromCString(label)!)");
     }
 
     func initTcpNetwork() {
@@ -57,7 +57,7 @@ class ViewController: UIViewController, NSStreamDelegate {
         printQueueLabel();
         switch (eventCode){
         case NSStreamEvent.OpenCompleted:
-            NSLog("Stream opened");
+            NSLog("Stream opened%@", NSStringFromClass(aStream.dynamicType));
             break
         case NSStreamEvent.HasBytesAvailable:
             var inputstream = aStream as? NSInputStream;
