@@ -19,10 +19,10 @@ class ViewController: UIViewController, NSStreamDelegate {
         self.button.setTitle("Test", forState: UIControlState.Normal);
     }
 
-func printQueueLabel(function:String = __FUNCTION__){
-    let label = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
-    println("\(function) @ \(String.fromCString(label))");
-}
+    func printQueueLabel(function:String = __FUNCTION__){
+        let label = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
+        println("\(function) @ \(String.fromCString(label))");
+    }
 
     func initTcpNetwork() {
         printQueueLabel();
@@ -85,7 +85,7 @@ func printQueueLabel(function:String = __FUNCTION__){
     func recv(recv: NSString) {
         printQueueLabel();
         dispatch_async(dispatch_get_main_queue()) {
-            self.button.setTitle(recv, forState: UIControlState.Normal);
+            self.button.setTitle(recv as String, forState: UIControlState.Normal);
         }
     }
 
