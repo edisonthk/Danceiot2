@@ -16,9 +16,12 @@ func printQueueLabel(function:String = __FUNCTION__){
 
 class ViewController: UIViewController, NSStreamDelegate {
 
+
+    @IBOutlet weak var button: UIButton!
     override func viewDidLoad() {
         super.viewDidLoad()
         initTcpNetwork();
+        self.button.setTitle("Test", forState: UIControlState.Normal);
     }
 
     func initTcpNetwork() {
@@ -34,17 +37,20 @@ class ViewController: UIViewController, NSStreamDelegate {
         inputStream.delegate = self;
         outputStream.delegate = self;
 
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)){
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)){
+            printQueueLabel();
             let loop = NSRunLoop.currentRunLoop();
             inputStream.scheduleInRunLoop(loop, forMode: NSDefaultRunLoopMode);
             outputStream.scheduleInRunLoop(loop, forMode: NSDefaultRunLoopMode);
+            inputStream.open()
+            outputStream.open()
             loop.run();
         }
 
-        //Open Streams
-        inputStream.open()
-        outputStream.open()
+    }
 
+    @IBAction func touchUpInside(sender: AnyObject) {
+        printQueueLabel();
     }
 
     func stream(aStream: NSStream, handleEvent eventCode: NSStreamEvent) {
@@ -77,6 +83,7 @@ class ViewController: UIViewController, NSStreamDelegate {
     }
     
     func recv(recv: NSString) {
+        printQueueLabel();
         print(recv);
     }
 
