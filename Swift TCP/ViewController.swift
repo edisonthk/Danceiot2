@@ -21,7 +21,7 @@ class ViewController: UIViewController, NSStreamDelegate {
 
 func printQueueLabel(function:String = __FUNCTION__){
     let label = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
-    println(label);
+    println(function + "@" + String(format: "%s", arguments: [label]));
 }
 
     func initTcpNetwork() {
