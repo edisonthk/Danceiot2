@@ -9,13 +9,8 @@
 import CoreFoundation;
 import UIKit
 
-func printQueueLabel(function:String = __FUNCTION__){
-    let label = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
-    NSLog("\(function)@%s",label);
-}
-
 class ViewController: UIViewController, NSStreamDelegate {
-
+    
 
     @IBOutlet weak var button: UIButton!
     override func viewDidLoad() {
@@ -24,12 +19,17 @@ class ViewController: UIViewController, NSStreamDelegate {
         self.button.setTitle("Test", forState: UIControlState.Normal);
     }
 
+func printQueueLabel(function:String = __FUNCTION__){
+    let label = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
+    println(label);
+}
+
     func initTcpNetwork() {
         printQueueLabel();
         var readStream:  Unmanaged<CFReadStream>?
         var writeStream: Unmanaged<CFWriteStream>?
 
-        CFStreamCreatePairWithSocketToHost(nil, "127.0.0.1", 5000, &readStream, &writeStream);
+        CFStreamCreatePairWithSocketToHost(nil, "127.0.0.1", 55222, &readStream, &writeStream);
 
         var inputStream: NSInputStream = readStream!.takeRetainedValue();
         var outputStream: NSOutputStream = writeStream!.takeRetainedValue();
@@ -38,7 +38,7 @@ class ViewController: UIViewController, NSStreamDelegate {
         outputStream.delegate = self;
 
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)){
-            printQueueLabel();
+            self.printQueueLabel();
             let loop = NSRunLoop.currentRunLoop();
             inputStream.scheduleInRunLoop(loop, forMode: NSDefaultRunLoopMode);
             outputStream.scheduleInRunLoop(loop, forMode: NSDefaultRunLoopMode);
