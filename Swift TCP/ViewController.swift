@@ -84,7 +84,9 @@ func printQueueLabel(function:String = __FUNCTION__){
     
     func recv(recv: NSString) {
         printQueueLabel();
-        print(recv);
+        dispatch_async(dispatch_get_main_queue()) {
+            self.button.setTitle(recv, forState: UIControlState.Normal);
+        }
     }
 
 
