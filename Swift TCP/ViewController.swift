@@ -7,27 +7,54 @@
 //
 
 import CoreFoundation;
+import AVFoundation;   // ライブラリーのインポート
 import UIKit
+
+class TempAudio:NSObject, AVAudioPlayerDelegate {
+    
+    var audio = AVAudioPlayer();
+    var initial = false;
+    var playing = false;
+    override init() {
+        super.init();
+    }
+    
+    func play(filename: String) {
+        self.playing = true;
+        var url = NSURL(fileURLWithPath: NSBundle.mainBundle().pathForResource(filename, ofType: "mp3")! );
+        self.audio = AVAudioPlayer(contentsOfURL: url, error: nil);
+        self.audio.delegate = self;
+        self.audio.prepareToPlay();
+        self.audio.play();
+    }
+    
+    func audioPlayerDidFinishPlaying(player: AVAudioPlayer!, successfully flag: Bool) {
+        println("helll");
+        self.playing = false;
+    }
+}
 
 class ViewController: UIViewController, NSStreamDelegate {
     
 
     @IBOutlet weak var button: UIButton!
     
-    
+//    var audioPlayers = [AVAudioPlayer(), AVAudioPlayer(), AVAudioPlayer()];
+    var audioPlayers = [TempAudio(), TempAudio(), TempAudio() ];
     
     override func viewDidLoad() {
         super.viewDidLoad()
         initTcpNetwork();
         self.button.setTitle("Test", forState: UIControlState.Normal);
         
-        
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)){
             while(true){
-                self.writeString("hello\n");
-                sleep(1);
+                self.writeString("0");
+                usleep(1000 * 100);
             }
         }
+        
+
         
     }
 
@@ -39,21 +66,18 @@ class ViewController: UIViewController, NSStreamDelegate {
     
     var outputStream:NSOutputStream?
     var inputStream:NSInputStream?
-    var outputQueue: NSOperationQueue{ get{
-        let ret = NSOperationQueue()
-        ret.maxConcurrentOperationCount = 1
-        return ret
-        }}
+    var outputQueue: NSOperationQueue = NSOperationQueue();
     
     func initTcpNetwork() {
+        
+        outputQueue.maxConcurrentOperationCount = 1;
 
-        NSStream.getStreamsToHostWithName("127.0.0.1", port: 8081, inputStream: &inputStream, outputStream: &outputStream)
+        NSStream.getStreamsToHostWithName("192.168.0.2", port: 8080, inputStream: &inputStream, outputStream: &outputStream)
 
         inputStream?.delegate = self;
         outputStream?.delegate = self;
 
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)){
-            self.printQueueLabel();
             let loop = NSRunLoop.currentRunLoop();
             self.inputStream?.scheduleInRunLoop(loop, forMode: NSDefaultRunLoopMode);
             self.outputStream?.scheduleInRunLoop(loop, forMode: NSDefaultRunLoopMode);
@@ -61,7 +85,6 @@ class ViewController: UIViewController, NSStreamDelegate {
             self.outputStream?.open()
             loop.run();
         }
-
     }
     
     func writeData() {
@@ -76,7 +99,7 @@ class ViewController: UIViewController, NSStreamDelegate {
 
         switch (eventCode){
         case NSStreamEvent.OpenCompleted:
-            NSLog("Stream opened%@", NSStringFromClass(aStream.dynamicType));
+            println("Stream opened");
             break
         case NSStreamEvent.HasSpaceAvailable:
             break
@@ -103,12 +126,50 @@ class ViewController: UIViewController, NSStreamDelegate {
         }
     }
     
+    var last_direction:Int = Int();
     func recv(recv: NSString) {
         dispatch_async(dispatch_get_main_queue()) {
-            println(recv);
-            self.button.setTitle(recv as String, forState: UIControlState.Normal);
+            if var direction = (recv as String).toInt() {
+                
+                // to prevent duplicate
+                if(direction == self.last_direction) {
+                    println();
+                    return;
+                }
+                
+                self.last_direction = direction;
+                if direction == 41 {
+                    println("left");
+                    self.playAudioInParallel("9");
+                }else if( direction == 21 ) {
+                    println("right");
+                    self.playAudioInParallel("3");
+                }else if( direction == 12 ) {
+                    println("up");
+                    self.playAudioInParallel("14");
+                }else if( direction == 14 ) {
+                    println("down");
+                    self.playAudioInParallel("17");
+                }
+            }
         }
     }
+    
+    
+    func playAudioInParallel( filename: String) {
+        
+        for var i = 0; i < self.audioPlayers.count; i++ {
+            print(i);
+            print(" ");
+            println(self.audioPlayers[i].playing);
+            if(!self.audioPlayers[i].playing) {
+                self.audioPlayers[i].play(filename);
+                break;
+            }
+        }
+
+    }
+    
     
     func writeString(str: String) {
         writeData(str.dataUsingEncoding(NSUTF8StringEncoding)!)
