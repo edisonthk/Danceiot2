@@ -25,11 +25,15 @@
                                     <action selector="touchUpInside:" destination="BYZ-38-t0r" eventType="touchUpInside" id="drG-LK-grF"/>
                                 </connections>
                             </button>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fHk-Bv-U5b">
+                                <rect key="frame" x="64" y="228" width="240" height="128"/>
+                            </imageView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
                     <connections>
                         <outlet property="button" destination="mcI-fV-89K" id="ivN-pk-wR5"/>
+                        <outlet property="tempImage" destination="fHk-Bv-U5b" id="8QX-Ro-p4i"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
